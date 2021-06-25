@@ -2,7 +2,6 @@ import { React, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { useHistory } from "react-router-dom";
 import firebase from "../utils/firebase";
-import theme from "../utils/theme";
 import {
   Card,
   TextField,
@@ -13,7 +12,8 @@ import {
   IconButton,
   Typography,
   Button,
-  useMediaQuery
+  Grid,
+  Box
 } from "@material-ui/core";
 //icons
 import Visibility from "@material-ui/icons/Visibility";
@@ -34,13 +34,26 @@ var useStyles = makeStyles((theme) => ({
     flexDirection: "column"
   },
   card: {
-    width: 250,
+    width: 700,
     padding: 20,
     borderRadius: 10,
-    border: "1px solid black"
+    border: "1px solid gray"
   },
   field: {
     margin: theme.spacing(0.5)
+  },
+  grid: {
+    display: "flex",
+    alignItems: "center"
+  },
+  name: {
+    display: "flex",
+    flexDirection: "row"
+  },
+  firstcol: {
+    display: "flex",
+    textAlign: "center",
+    justifyContent: "center"
   }
 }));
 
@@ -52,6 +65,8 @@ function SignUp() {
     email: "",
     password: "",
     confirmPassword: "",
+    LastName: "",
+    FirstName: "",
     showPassword: false,
     showConfirmPassword: false
   });
@@ -119,88 +134,114 @@ function SignUp() {
   return (
     <div className={classes.root}>
       <Card elevation={0} className={classes.card}>
-        <form className={classes.form}>
-          <Typography variant="h5" color="textPrimary">
-            Create new Account
-          </Typography>
+        <Grid container spacing={1} className={classes.grid}>
+          <Grid item xs={6} className={classes.firstcol}>
+            <Typography variant="h4" color="textPrimary">
+              <Box>Create</Box>
+              <Box>New Account</Box>
+            </Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <form className={classes.form}>
+              <Box className={classes.name}>
+                <TextField
+                  className={classes.field}
+                  id="FirstName"
+                  onChange={handleChange("FirstName")}
+                  label="FirstName"
+                  variant="outlined"
+                />
+                <TextField
+                  className={classes.field}
+                  id="LastName"
+                  onChange={handleChange("LastName")}
+                  label="LastName"
+                  variant="outlined"
+                />
+              </Box>
+              <TextField
+                className={classes.field}
+                id="Email"
+                onChange={handleChange("email")}
+                label="Email"
+                variant="outlined"
+              />
+              <FormControl className={classes.field} variant="outlined">
+                <InputLabel htmlFor="outlined-adornment-password">
+                  Password
+                </InputLabel>
+                <OutlinedInput
+                  id="outlined-adornment-password"
+                  type={payload.showPassword ? "text" : "password"}
+                  value={payload.password}
+                  onChange={handleChange("password")}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleClickShowPassword}
+                        onMouseDown={handleMouseDownPassword}
+                        edge="end"
+                      >
+                        {payload.showPassword ? (
+                          <Visibility />
+                        ) : (
+                          <VisibilityOff />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                  labelWidth={70}
+                />
+              </FormControl>
+              <FormControl className={classes.field} variant="outlined">
+                <InputLabel htmlFor="outlined-adornment-confirmPassword">
+                  Confirm password
+                </InputLabel>
+                <OutlinedInput
+                  id="outlined-adornment-confirmPassword"
+                  type={payload.showConfirmPassword ? "text" : "password"}
+                  value={payload.confirmPassword}
+                  onChange={handleChange("confirmPassword")}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle confirmPassword visibility"
+                        onClick={handleClickShowConfirmPassword}
+                        onMouseDown={handleMouseDownConfirmPassword}
+                        edge="end"
+                      >
+                        {payload.showConfirmPassword ? (
+                          <Visibility />
+                        ) : (
+                          <VisibilityOff />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                  labelWidth={130}
+                />
+              </FormControl>
+              <Button
+                onClick={register}
+                className={classes.field}
+                variant="contained"
+                color="primary"
+              >
+                REGISTER
+              </Button>
 
-          <TextField
-            className={classes.field}
-            id="Email"
-            onChange={handleChange("email")}
-            label="Email"
-            variant="outlined"
-          />
-          <FormControl className={classes.field} variant="outlined">
-            <InputLabel htmlFor="outlined-adornment-password">
-              Password
-            </InputLabel>
-            <OutlinedInput
-              id="outlined-adornment-password"
-              type={payload.showPassword ? "text" : "password"}
-              value={payload.password}
-              onChange={handleChange("password")}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={handleClickShowPassword}
-                    onMouseDown={handleMouseDownPassword}
-                    edge="end"
-                  >
-                    {payload.showPassword ? <Visibility /> : <VisibilityOff />}
-                  </IconButton>
-                </InputAdornment>
-              }
-              labelWidth={70}
-            />
-          </FormControl>
-          <FormControl className={classes.field} variant="outlined">
-            <InputLabel htmlFor="outlined-adornment-confirmPassword">
-              Confirm password
-            </InputLabel>
-            <OutlinedInput
-              id="outlined-adornment-confirmPassword"
-              type={payload.showConfirmPassword ? "text" : "password"}
-              value={payload.confirmPassword}
-              onChange={handleChange("confirmPassword")}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle confirmPassword visibility"
-                    onClick={handleClickShowConfirmPassword}
-                    onMouseDown={handleMouseDownConfirmPassword}
-                    edge="end"
-                  >
-                    {payload.showConfirmPassword ? (
-                      <Visibility />
-                    ) : (
-                      <VisibilityOff />
-                    )}
-                  </IconButton>
-                </InputAdornment>
-              }
-              labelWidth={130}
-            />
-          </FormControl>
-          <Button
-            onClick={register}
-            className={classes.field}
-            variant="contained"
-            color="primary"
-          >
-            REGISTER
-          </Button>
-
-          <Button
-            onClick={() => history.push("/signin")}
-            className={classes.field}
-            variant="contained"
-            color="default"
-          >
-            LOGIN?
-          </Button>
-        </form>
+              <Button
+                onClick={() => history.push("/signin")}
+                className={classes.field}
+                variant="contained"
+                color="default"
+              >
+                LOGIN?
+              </Button>
+            </form>
+          </Grid>
+        </Grid>
       </Card>
     </div>
   );

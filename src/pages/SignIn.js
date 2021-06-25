@@ -2,7 +2,6 @@ import React from "react";
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
 import firebase from "../utils/firebase";
-import theme from "../utils/theme";
 
 import {
   makeStyles,
@@ -15,7 +14,6 @@ import {
   IconButton,
   Typography,
   Button,
-  useMediaQuery,
   Grid,
   Box
 } from "@material-ui/core";
@@ -39,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column"
   },
   card: {
-    width: 230,
+    width: 300,
     padding: 20,
     borderRadius: 10,
     border: "1px solid gray"
@@ -61,7 +59,6 @@ const useStyles = makeStyles((theme) => ({
 function SignIn() {
   const classes = useStyles();
   const history = useHistory("");
-  const fieldSize = useMediaQuery(theme.breakpoints.down("xs"));
   const [values, setValues] = useState({
     email: "",
     password: "",
@@ -125,13 +122,8 @@ function SignIn() {
                 onChange={handleChange("email")}
                 label="Email@email.com"
                 variant="outlined"
-                size={fieldSize ? "small" : "medium"}
               />
-              <FormControl
-                className={classes.field}
-                variant="outlined"
-                size={fieldSize ? "small" : "medium"}
-              >
+              <FormControl className={classes.field} variant="outlined">
                 <InputLabel htmlFor="outlined-adornment-password">
                   Password
                 </InputLabel>
