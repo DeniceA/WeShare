@@ -1,4 +1,5 @@
 import firebase from "firebase";
+import "firebase/storage";
 var firebaseConfig = {
   apiKey: "AIzaSyAg5Ba7JYSNr2UUgB-L2IXV5MDImxlc7C8",
   authDomain: "weshare-8c94c.firebaseapp.com",
