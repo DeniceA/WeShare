@@ -108,30 +108,26 @@ function SignUp() {
         .createUserWithEmailAndPassword(payload.email, payload.password)
         .then((userCredential) => {
           const batch = db.batch();
-          const postRef = db.collection("users").doc(useruid).doc();
-          batch.set(postRef, {
-            caption: state.caption,
-            image_url: imageURL,
-            posted_date: new Date()
+          const currentuser = firebase.auth().currentUser;
+          const registerRef = db.collection("users").doc(currentuser.uid);
+          batch.set(registerRef, {
+            email: payload.email,
+            first_name: payload.FirstName,
+            last_name: payload.LastName,
+            profile_url: "",
+            post_number: 0,
+            friends_number: 0,
+            created_at: new Date()
           });
-
           batch
             .commit()
-            .then(() => {})
+            .then(() => {
+              alert("You have sign up successfully");
+            })
             .catch((error) => {
               //err
             });
 
-          alert("You have sign up successfully");
-          firebase
-            .auth()
-            .signOut()
-            .then(() => {
-              // Sign-out successful.
-            })
-            .catch((error) => {
-              // An error happened.
-            });
           // Signed in
 
           // var user = userCredential.email;

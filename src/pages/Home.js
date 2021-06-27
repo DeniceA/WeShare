@@ -149,9 +149,7 @@ function Home() {
           <Grid item xs={4}>
             <Card className={classes.friendsList} elevation={0}>
               <CardHeader
-                avatar={
-                  <Avatar src="https://scontent.fcrk1-3.fna.fbcdn.net/v/t1.6435-9/162384487_4020543097996574_4337182998067131726_n.jpg?_nc_cat=106&ccb=1-3&_nc_sid=174925&_nc_eui2=AeHEbegMwVzNnSyzvvPquh_9scju97htVt2xyO73uG1W3YN0GcXDIaKLcO5C3FwsjXUUqaBVU1gHx8_uorN7x5W6&_nc_ohc=07Rx1zihySsAX-N9zJr&_nc_ht=scontent.fcrk1-3.fna&oh=a035ecc4f66e7397cc8267c7daebd14f&oe=60DAC026" />
-                }
+                avatar={<Avatar src={state.profileURL} />}
                 title={state.firstName + " " + state.lastName}
                 subheader={"friends: " + state.NumberOfFriends}
               />
