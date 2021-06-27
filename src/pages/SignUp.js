@@ -56,7 +56,7 @@ var useStyles = makeStyles((theme) => ({
     justifyContent: "center"
   }
 }));
-
+const db = firebase.firestore();
 function SignUp() {
   const classes = useStyles();
   const history = useHistory("");
@@ -107,6 +107,21 @@ function SignUp() {
         .auth()
         .createUserWithEmailAndPassword(payload.email, payload.password)
         .then((userCredential) => {
+          const batch = db.batch();
+          const postRef = db.collection("users").doc(useruid).doc();
+          batch.set(postRef, {
+            caption: state.caption,
+            image_url: imageURL,
+            posted_date: new Date()
+          });
+
+          batch
+            .commit()
+            .then(() => {})
+            .catch((error) => {
+              //err
+            });
+
           alert("You have sign up successfully");
           firebase
             .auth()
