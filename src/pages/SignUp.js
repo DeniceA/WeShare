@@ -1,5 +1,4 @@
 import { React, useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
 import { useHistory } from "react-router-dom";
 import firebase from "../utils/firebase";
 import {
@@ -13,7 +12,8 @@ import {
   Typography,
   Button,
   Grid,
-  Box
+  Box,
+  makeStyles
 } from "@material-ui/core";
 //icons
 import Visibility from "@material-ui/icons/Visibility";

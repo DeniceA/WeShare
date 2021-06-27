@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import * as firestore from "firebase-admin";
 import {
   makeStyles,
   Fade,
@@ -10,6 +11,7 @@ import {
   Button
 } from "@material-ui/core";
 import firebase from "../utils/firebase";
+
 //icons
 import Image from "@material-ui/icons/Image";
 
@@ -37,17 +39,18 @@ const useStyles = makeStyles((theme) => ({
     display: "none"
   }
 }));
+const db = firebase.firestore();
+db.settings({ ignoreUndefinedProperties: true });
 
-export default function AddPost({ open, setOpen }) {
+export default function AddPost({ open, setOpen, useruid }) {
   const classes = useStyles();
-  const [post, setPost] = useState({
-    caption: "",
-    uploadDate: new Date(),
+  const [state, setState] = useState({
+    caption: " ",
     imageURL: ""
   });
 
   const handleChange = (prop) => (event) => {
-    setPost({ ...post, [prop]: event.target.value });
+    setState({ ...state, [prop]: event.target.value });
   };
 
   const onFileChange = async (event) => {
@@ -55,17 +58,38 @@ export default function AddPost({ open, setOpen }) {
     var storageRef = firebase.storage().ref();
     var fileRef = storageRef.child(file.name);
     await fileRef.put(file);
-    setPost({ imageURL: await fileRef.getDownloadURL() });
+    setState({ imageURL: await fileRef.getDownloadURL() });
   };
 
   const handleClose = () => {
     setOpen(false);
   };
 
-  const posted = (event) => {
-    setPost({ uploadDate: Date.now() });
-    event.preventDefault();
-    console.log(post);
+  const posted = () => {
+    if (state.imageURL === "") {
+      alert("add image");
+    } else {
+      const batch = db.batch();
+      const postRef = db
+        .collection("users")
+        .doc(useruid)
+        .collection("post")
+        .doc();
+      batch.set(postRef, {
+        caption: state.caption,
+        image_url: state.imageURL,
+        posted_date: new Date()
+      });
+
+      batch
+        .commit()
+        .then(() => {
+          handleClose();
+        })
+        .catch((error) => {
+          //err
+        });
+    }
   };
 
   return (
@@ -88,7 +112,6 @@ export default function AddPost({ open, setOpen }) {
             <InputBase
               className={classes.caption}
               onChange={handleChange("caption")}
-              id="filled-textarea"
               placeholder="Write a post"
               rows={5}
               multiline

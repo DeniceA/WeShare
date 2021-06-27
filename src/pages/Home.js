@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Nav from "../components/Nav";
+import firebase from "../utils/firebase";
+import AddPost from "../modals/AddPost";
 import {
   Grid,
   makeStyles,
@@ -47,11 +49,61 @@ var useStyles = makeStyles((theme) => ({
     border: "0.5px solid rgb(215, 40, 126)"
   }
 }));
+
+const db = firebase.firestore();
 function Home() {
   const classes = useStyles();
+  const [state, setState] = useState({
+    useruid: "",
+    firstName: "",
+    lastName: "",
+    imageURL: "",
+    NumberOfFriends: 0
+  });
+  const [post, setPost] = useState([]);
+  useEffect(() => {
+    const fetchData = () => {
+      const currentuser = firebase.auth().currentUser;
+      db.collection("users")
+        .doc(currentuser.uid)
+        .get()
+        .then((doc) => {
+          //success
+          if (doc.exists) {
+            let usersDoc = doc.data();
+            setState({
+              firstName: usersDoc.first_name,
+              lastName: usersDoc.last_name,
+              NumberOfFriends: usersDoc.friends_number,
+              useruid: currentuser.uid
+            });
+            fetchPosts();
+          } else {
+            //
+          }
+        })
+        .catch((err) => {
+          //error
+        });
+    };
+    const fetchPosts = (useruid) => {
+      db.collection("users")
+        .doc(useruid)
+        .collection("post")
+        .orderBy("posted_date")
+        .onSnapshot((doc) => {
+          let postlist = [];
+          doc.forEach((p) => {
+            postlist.push(p.doc());
+          });
+          setPost(postlist);
+        });
+    };
+    fetchData();
+  }, []);
   return (
     <div>
-      <Nav />
+      <Nav useruid={state.useruid} />
       <div className={classes.root}>
         <Grid container spacing={2} className={classes.container}>
           <Grid item xs={8}>
@@ -65,7 +117,7 @@ function Home() {
                     <MoreVertIcon />
                   </IconButton>
                 }
-                title="Denice Ann Dela Cruz"
+                title={state.firstName + " " + state.lastName}
                 subheader="June 26, 2021"
               />
               <CardMedia
@@ -94,12 +146,14 @@ function Home() {
                 avatar={
                   <Avatar src="https://scontent.fcrk1-3.fna.fbcdn.net/v/t1.6435-9/162384487_4020543097996574_4337182998067131726_n.jpg?_nc_cat=106&ccb=1-3&_nc_sid=174925&_nc_eui2=AeHEbegMwVzNnSyzvvPquh_9scju97htVt2xyO73uG1W3YN0GcXDIaKLcO5C3FwsjXUUqaBVU1gHx8_uorN7x5W6&_nc_ohc=07Rx1zihySsAX-N9zJr&_nc_ht=scontent.fcrk1-3.fna&oh=a035ecc4f66e7397cc8267c7daebd14f&oe=60DAC026" />
                 }
-                title="Denice Ann Dela Cruz"
+                title={state.firstName + " " + state.lastName}
+                subheader={"friends: " + state.NumberOfFriends}
               />
             </Card>
           </Grid>
         </Grid>
       </div>
+      <AddPost open={false} setOpen={false} userUid={state.useruid} />
     </div>
   );
 }

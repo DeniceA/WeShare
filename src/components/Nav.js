@@ -54,7 +54,7 @@ ElevationScroll.propTypes = {
   window: PropTypes.func
 };
 
-export default function Nav(props) {
+export default function Nav({ props, useruid }) {
   const [openAddPost, setOpenAddPost] = useState(false);
   const classes = useStyles();
   return (
@@ -91,7 +91,7 @@ export default function Nav(props) {
         </AppBar>
       </ElevationScroll>
       <Toolbar />
-      <AddPost open={openAddPost} setOpen={setOpenAddPost} />
+      <AddPost useruid={useruid} open={openAddPost} setOpen={setOpenAddPost} />
     </React.Fragment>
   );
 }
