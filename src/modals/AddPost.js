@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import * as firestore from "firebase-admin";
+
 import {
   makeStyles,
   Fade,

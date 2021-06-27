@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Nav from "../components/Nav";
 import firebase from "../utils/firebase";
 import AddPost from "../modals/AddPost";
+import moment from "moment";
 import {
   Grid,
   makeStyles,
@@ -46,7 +47,8 @@ var useStyles = makeStyles((theme) => ({
     margin: theme.spacing(1)
   },
   card: {
-    border: "0.5px solid rgb(215, 40, 126)"
+    border: "0.5px solid rgb(215, 40, 126)",
+    marginBottom: 20
   }
 }));
 
@@ -57,6 +59,7 @@ function Home() {
     useruid: "",
     firstName: "",
     lastName: "",
+    profileURL: "",
     imageURL: "",
     NumberOfFriends: 0
   });
@@ -75,7 +78,8 @@ function Home() {
               firstName: usersDoc.first_name,
               lastName: usersDoc.last_name,
               NumberOfFriends: usersDoc.friends_number,
-              useruid: currentuser.uid
+              useruid: currentuser.uid,
+              profileURL: usersDoc.profile_url
             });
             fetchPosts(currentuser.uid);
           } else {
@@ -90,7 +94,7 @@ function Home() {
       db.collection("users")
         .doc(useruid)
         .collection("post")
-        .orderBy("posted_date")
+        .orderBy("posted_date", "desc")
         .onSnapshot((doc) => {
           let postlist = [];
           doc.forEach((p) => {
@@ -107,38 +111,40 @@ function Home() {
       <div className={classes.root}>
         <Grid container spacing={2} className={classes.container}>
           <Grid item xs={8}>
-            <Card className={classes.card}>
-              <CardHeader
-                avatar={
-                  <Avatar src="https://scontent.fcrk1-3.fna.fbcdn.net/v/t1.6435-9/162384487_4020543097996574_4337182998067131726_n.jpg?_nc_cat=106&ccb=1-3&_nc_sid=174925&_nc_eui2=AeHEbegMwVzNnSyzvvPquh_9scju97htVt2xyO73uG1W3YN0GcXDIaKLcO5C3FwsjXUUqaBVU1gHx8_uorN7x5W6&_nc_ohc=07Rx1zihySsAX-N9zJr&_nc_ht=scontent.fcrk1-3.fna&oh=a035ecc4f66e7397cc8267c7daebd14f&oe=60DAC026" />
-                }
-                action={
-                  <IconButton aria-label="settings">
-                    <MoreVertIcon />
+            {post.map((p) => (
+              <Card className={classes.card}>
+                <CardHeader
+                  avatar={<Avatar src={state.profileURL} />}
+                  action={
+                    <IconButton aria-label="settings">
+                      <MoreVertIcon />
+                    </IconButton>
+                  }
+                  title={state.firstName + " " + state.lastName}
+                  subheader={moment(
+                    p.posted_date.toDate().toString()
+                  ).calendar()}
+                />
+                <CardMedia
+                  square
+                  className={classes.media}
+                  image={p.image_url}
+                />
+                <CardActions>
+                  <IconButton>
+                    <FavoriteIcon />
                   </IconButton>
-                }
-                title={state.firstName + " " + state.lastName}
-                subheader="June 26, 2021"
-              />
-              <CardMedia
-                square
-                className={classes.media}
-                image="https://firebasestorage.googleapis.com/v0/b/weshare-8c94c.appspot.com/o/jeison-higuita-KD9AsSBYz3Q-unsplash%20(1).jpg?alt=media&token=30c1c29a-0cf4-4a50-9b1f-832ae9a8ccf9"
-              />
-              <CardActions>
-                <IconButton>
-                  <FavoriteIcon />
-                </IconButton>
-              </CardActions>
-              <CardContent>
-                <Typography variant="body2" color="textPrimary" component="p">
-                  0 likes
-                </Typography>
-                <Typography variant="body2" color="textPrimary" component="p">
-                  Napaka taba ko
-                </Typography>
-              </CardContent>
-            </Card>
+                </CardActions>
+                <CardContent>
+                  <Typography variant="body2" color="textPrimary" component="p">
+                    0 likes
+                  </Typography>
+                  <Typography variant="body2" color="textPrimary" component="p">
+                    {p.caption}
+                  </Typography>
+                </CardContent>
+              </Card>
+            ))}
           </Grid>
           <Grid item xs={4}>
             <Card className={classes.friendsList} elevation={0}>
