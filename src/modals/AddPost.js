@@ -40,33 +40,31 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 const db = firebase.firestore();
-db.settings({ ignoreUndefinedProperties: true });
 
 export default function AddPost({ open, setOpen, useruid }) {
   const classes = useStyles();
   const [state, setState] = useState({
-    caption: " ",
-    imageURL: ""
+    caption: ""
   });
+  const [imageURL, setImageURL] = useState("");
 
   const handleChange = (prop) => (event) => {
     setState({ ...state, [prop]: event.target.value });
   };
-
   const onFileChange = async (event) => {
     const file = event.target.files[0];
     var storageRef = firebase.storage().ref();
     var fileRef = storageRef.child(file.name);
     await fileRef.put(file);
-    setState({ imageURL: await fileRef.getDownloadURL() });
+    setImageURL(await fileRef.getDownloadURL());
   };
 
   const handleClose = () => {
     setOpen(false);
   };
-
-  const posted = () => {
-    if (state.imageURL === "") {
+  const posted = (e) => {
+    e.preventDefault();
+    if (imageURL === "") {
       alert("add image");
     } else {
       const batch = db.batch();
@@ -77,13 +75,14 @@ export default function AddPost({ open, setOpen, useruid }) {
         .doc();
       batch.set(postRef, {
         caption: state.caption,
-        image_url: state.imageURL,
+        image_url: imageURL,
         posted_date: new Date()
       });
 
       batch
         .commit()
         .then(() => {
+          setImageURL("");
           handleClose();
         })
         .catch((error) => {
@@ -109,6 +108,7 @@ export default function AddPost({ open, setOpen, useruid }) {
             <Typography variant="h5">
               <Box>Create a post</Box>
             </Typography>
+
             <InputBase
               className={classes.caption}
               onChange={handleChange("caption")}
@@ -118,7 +118,12 @@ export default function AddPost({ open, setOpen, useruid }) {
             />
             <Button component="label">
               <Image color="inherit" />
-              <input type="file" onChange={onFileChange} accept="image/*" />
+              <input
+                type="file"
+                onChange={onFileChange}
+                accept="image/*"
+                required
+              />
             </Button>
             <Button onClick={posted} color="primary" variant="contained">
               Post

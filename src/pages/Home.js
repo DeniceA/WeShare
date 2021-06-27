@@ -77,7 +77,7 @@ function Home() {
               NumberOfFriends: usersDoc.friends_number,
               useruid: currentuser.uid
             });
-            fetchPosts();
+            fetchPosts(currentuser.uid);
           } else {
             //
           }
@@ -94,7 +94,7 @@ function Home() {
         .onSnapshot((doc) => {
           let postlist = [];
           doc.forEach((p) => {
-            postlist.push(p.doc());
+            postlist.push(p.data());
           });
           setPost(postlist);
         });
