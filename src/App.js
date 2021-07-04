@@ -14,6 +14,7 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
+import Profile from "./pages/Profile";
 
 var useStyles = makeStyles(() => ({
   loading: {
@@ -58,6 +59,11 @@ function App() {
             <Redirect to="/home" exact />
           </Route>
           <PrivateRoute component={Home} isAuth={state.isAuth} path="/home" />
+          <PrivateRoute
+            component={Profile}
+            isAuth={state.isAuth}
+            path="/profile"
+          />
           <PublicRoute
             component={SignIn}
             isAuth={state.isAuth}

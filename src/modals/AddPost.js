@@ -30,10 +30,7 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column"
   },
   caption: {
-    width: 500,
-    [theme.breakpoints.down("xs")]: {
-      width: 200
-    }
+    width: 500
   },
   fileInput: {
     display: "none"
@@ -44,7 +41,7 @@ const db = firebase.firestore();
 export default function AddPost({ open, setOpen, useruid }) {
   const classes = useStyles();
   const [state, setState] = useState({
-    caption: ""
+    caption: " "
   });
   const [imageURL, setImageURL] = useState("");
 
@@ -78,10 +75,14 @@ export default function AddPost({ open, setOpen, useruid }) {
         image_url: imageURL,
         posted_date: new Date()
       });
-
+      let postNumberRef = db.collection("users").doc(useruid);
+      batch.update(postNumberRef, {
+        post_number: firebase.firestore.FieldValue.increment(1)
+      });
       batch
         .commit()
         .then(() => {
+          setState({ caption: " " });
           setImageURL("");
           handleClose();
         })

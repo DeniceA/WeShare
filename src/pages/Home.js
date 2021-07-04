@@ -38,7 +38,8 @@ var useStyles = makeStyles((theme) => ({
   friendsList: {
     height: 400,
     width: 300,
-    position: "fixed"
+    position: "fixed",
+    background: "#fafafa"
   },
   friends: {
     display: "flex",

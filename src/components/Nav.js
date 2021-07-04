@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-
+import { useHistory } from "react-router-dom";
 import {
   Toolbar,
   AppBar,
@@ -56,6 +56,7 @@ ElevationScroll.propTypes = {
 
 export default function Nav({ props, useruid }) {
   const [openAddPost, setOpenAddPost] = useState(false);
+  const history = useHistory("");
   const classes = useStyles();
   return (
     <React.Fragment>
@@ -78,10 +79,18 @@ export default function Nav({ props, useruid }) {
                 >
                   <Add />
                 </IconButton>
-                <IconButton color="Primary" component="span">
+                <IconButton
+                  color="Primary"
+                  component="span"
+                  onClick={() => history.push("/home")}
+                >
                   <Home />
                 </IconButton>
-                <IconButton color="Primary" component="span">
+                <IconButton
+                  color="Primary"
+                  component="span"
+                  onClick={() => history.push("/profile")}
+                >
                   <Profile />
                 </IconButton>
               </Grid>
