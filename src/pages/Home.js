@@ -7,12 +7,12 @@ import {
   Grid,
   makeStyles,
   Card,
-  CardActionArea,
+
   CardMedia,
   CardContent,
   Typography,
   CardActions,
-  Button,
+
   IconButton,
   CardHeader,
   Avatar

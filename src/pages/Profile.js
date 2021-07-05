@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Nav from "../components/Nav";
 import firebase from "../utils/firebase";
-import { useHistory } from "react-router-dom";
+
+import ChangeProfile from "../modals/ChangeProfile";
 import {
   makeStyles,
   Card,
@@ -10,8 +11,7 @@ import {
   Typography,
   Paper,
   Grid,
-  CardActionArea,
-  Divider
+  CardActionArea
 } from "@material-ui/core";
 //icons
 import ImageOutlined from "@material-ui/icons/ImageOutlined";
@@ -89,8 +89,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 const db = firebase.firestore();
 function Profile() {
+  const [openChangeProfile, setOpenChangeProfile] = useState(false);
   const classes = useStyles();
-  const history = useHistory("");
   const [state, setState] = useState({
     useruid: "",
     firstName: "",
@@ -99,7 +99,7 @@ function Profile() {
     imageURL: "",
     numberOfFriends: 0,
     numberOfPost: 0,
-    bio: ""
+    bio: "asdasd"
   });
   const [post, setPost] = useState([]);
   useEffect(() => {
@@ -117,8 +117,7 @@ function Profile() {
               numberOfFriends: usersDoc.friends_number,
               useruid: currentuser.uid,
               profileURL: usersDoc.profile_url,
-              numberOfPost: usersDoc.post_number,
-              bio: usersDoc.bio
+              numberOfPost: usersDoc.post_number
             });
             fetchPosts(currentuser.uid);
           } else {
@@ -141,6 +140,7 @@ function Profile() {
     };
     fetchData();
   }, []);
+
   return (
     <div className={classes.root}>
       <Nav useruid={state.useruid} />
@@ -149,7 +149,7 @@ function Profile() {
           <Card className={classes.profile}>
             <CardActionArea
               className={classes.profiledetails}
-              onClick={() => history.push("/changeprofile")}
+              onClick={() => setOpenChangeProfile(true)}
             >
               <Avatar
                 src={state.profileURL}
@@ -168,7 +168,7 @@ function Profile() {
               <div className={classes.fandp}>
                 <Typography variant="body1" className={classes.textFriends}>
                   <div>Friends</div>
-                  <div className="numberOfFriends">0</div>
+                  <div className="numberOfFriends">{state.numberOfFriends}</div>
                 </Typography>
                 <Typography variant="body1" className={classes.textPost}>
                   <div>Post</div>
@@ -177,7 +177,7 @@ function Profile() {
               </div>
               <div>
                 <Typography variant="body2" color="textSecondary" component="p">
-                  {state.bio}
+                  <div>{state.bio + " asdasdasd"}</div>
                 </Typography>
               </div>
             </CardActionArea>
@@ -208,6 +208,11 @@ function Profile() {
           </Paper>
         </Grid>
       </Grid>
+      <ChangeProfile
+        useruid={state.useruid}
+        open={openChangeProfile}
+        setOpen={setOpenChangeProfile}
+      />
     </div>
   );
 }

@@ -15,7 +15,6 @@ import SignUp from "./pages/SignUp";
 import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile";
-import ChangeProfile from "./pages/ChangeProfile";
 
 var useStyles = makeStyles(() => ({
   loading: {
@@ -64,11 +63,6 @@ function App() {
             component={Profile}
             isAuth={state.isAuth}
             path="/profile"
-          />
-          <PrivateRoute
-            component={ChangeProfile}
-            isAuth={state.isAuth}
-            path="/changeprofile"
           />
           <PublicRoute
             component={SignIn}
