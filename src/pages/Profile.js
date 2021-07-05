@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
 import Nav from "../components/Nav";
 import firebase from "../utils/firebase";
+import { useHistory } from "react-router-dom";
 import {
   makeStyles,
   Card,
   CardMedia,
   Avatar,
-  Box,
   Typography,
   Paper,
   Grid,
-  CardActionArea
+  CardActionArea,
+  Divider
 } from "@material-ui/core";
 //icons
 import ImageOutlined from "@material-ui/icons/ImageOutlined";
@@ -75,7 +76,8 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     textAlign: "center",
-    maxHeight: 500
+    maxHeight: 500,
+    maxWidth: 300
   },
   profilemedia: {
     height: 140
@@ -88,7 +90,7 @@ const useStyles = makeStyles((theme) => ({
 const db = firebase.firestore();
 function Profile() {
   const classes = useStyles();
-
+  const history = useHistory("");
   const [state, setState] = useState({
     useruid: "",
     firstName: "",
@@ -96,7 +98,8 @@ function Profile() {
     profileURL: "",
     imageURL: "",
     numberOfFriends: 0,
-    numberOfPost: 0
+    numberOfPost: 0,
+    bio: ""
   });
   const [post, setPost] = useState([]);
   useEffect(() => {
@@ -114,7 +117,8 @@ function Profile() {
               numberOfFriends: usersDoc.friends_number,
               useruid: currentuser.uid,
               profileURL: usersDoc.profile_url,
-              numberOfPost: usersDoc.post_number
+              numberOfPost: usersDoc.post_number,
+              bio: usersDoc.bio
             });
             fetchPosts(currentuser.uid);
           } else {
@@ -143,7 +147,10 @@ function Profile() {
       <Grid container spacing={2} alignItems="flex-start">
         <Grid item xs={3}>
           <Card className={classes.profile}>
-            <CardActionArea className={classes.profiledetails}>
+            <CardActionArea
+              className={classes.profiledetails}
+              onClick={() => history.push("/changeprofile")}
+            >
               <Avatar
                 src={state.profileURL}
                 className={classes.profilePicture}
@@ -158,16 +165,21 @@ function Profile() {
               >
                 {state.firstName + " " + state.lastName}
               </Typography>
-              <Box className={classes.fandp}>
+              <div className={classes.fandp}>
                 <Typography variant="body1" className={classes.textFriends}>
-                  <Box>Friends</Box>
-                  <Box className="numberOfFriends">0</Box>
+                  <div>Friends</div>
+                  <div className="numberOfFriends">0</div>
                 </Typography>
                 <Typography variant="body1" className={classes.textPost}>
-                  <Box>Post</Box>
-                  <Box fontWeight={600}>{state.numberOfPost}</Box>
+                  <div>Post</div>
+                  <div fontWeight={600}>{state.numberOfPost}</div>
                 </Typography>
-              </Box>
+              </div>
+              <div>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  {state.bio}
+                </Typography>
+              </div>
             </CardActionArea>
           </Card>
         </Grid>
@@ -178,10 +190,10 @@ function Profile() {
               color="textSecondary"
               className={classes.textPost2}
             >
-              <Box className={classes.icon}>
+              <div className={classes.icon}>
                 <ImageOutlined />
-                <Box>Post</Box>
-              </Box>
+                <div>Post</div>
+              </div>
             </Typography>
 
             <Grid container spacing={4} justify="center">

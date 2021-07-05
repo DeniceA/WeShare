@@ -117,6 +117,7 @@ function SignUp() {
             profile_url: "",
             post_number: 0,
             friends_number: 0,
+            bio: "",
             created_at: new Date()
           });
           batch
