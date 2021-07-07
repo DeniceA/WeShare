@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
+import firebase from "../utils/firebase";
 import {
   Toolbar,
   AppBar,
@@ -16,7 +17,7 @@ import AddPost from "../modals/AddPost";
 import Home from "@material-ui/icons/HomeOutlined";
 import Profile from "@material-ui/icons/FaceOutlined";
 import Add from "@material-ui/icons/AddCircleOutlineOutlined";
-
+import ExitToApp from "@material-ui/icons/ExitToApp";
 const useStyles = makeStyles((theme) => ({
   toolbar: {
     display: "flex",
@@ -29,6 +30,19 @@ const useStyles = makeStyles((theme) => ({
     background: "red"
   }
 }));
+
+const signout = () => {
+  firebase
+    .auth()
+    .signOut()
+    .then(() => {
+      // Sign-out successful.
+    })
+    .catch((error) => {
+      // An error happened.
+    });
+};
+
 function ElevationScroll(props) {
   const { children, window } = props;
   // Note that you normally won't need to set the window ref as useScrollTrigger
@@ -92,6 +106,9 @@ export default function Nav({ props, useruid }) {
                   onClick={() => history.push("/profile")}
                 >
                   <Profile />
+                </IconButton>
+                <IconButton color="Primary" component="span" onClick={signout}>
+                  <ExitToApp />
                 </IconButton>
               </Grid>
             </Grid>

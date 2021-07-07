@@ -7,12 +7,10 @@ import {
   Grid,
   makeStyles,
   Card,
-
   CardMedia,
   CardContent,
   Typography,
   CardActions,
-
   IconButton,
   CardHeader,
   Avatar
@@ -62,19 +60,24 @@ function Home() {
     lastName: "",
     profileURL: "",
     imageURL: "",
-    NumberOfFriends: 0
+    NumberOfFriends: 0,
+    //
+    friendsFirstName: "",
+    friendsLastName: "",
+    friendsProfile: ""
   });
   const [post, setPost] = useState([]);
+  const [friends, setFriends] = useState();
+  const [friendsPost, setFriendsPost] = useState([]);
   useEffect(() => {
     const fetchData = () => {
       const currentuser = firebase.auth().currentUser;
       db.collection("users")
         .doc(currentuser.uid)
-        .get()
-        .then((doc) => {
+        .onSnapshot((doc) => {
           //success
           if (doc.exists) {
-            let usersDoc = doc.data();
+            const usersDoc = doc.data();
             setState({
               firstName: usersDoc.first_name,
               lastName: usersDoc.last_name,
@@ -82,13 +85,11 @@ function Home() {
               useruid: currentuser.uid,
               profileURL: usersDoc.profile_url
             });
+            setFriends(usersDoc.Friends[0]);
             fetchPosts(currentuser.uid);
           } else {
             //
           }
-        })
-        .catch((err) => {
-          //error
         });
     };
     const fetchPosts = (useruid) => {
@@ -105,6 +106,41 @@ function Home() {
         });
     };
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const friendsDetails = (friends) => {
+      db.collection("users")
+        .doc(friends)
+        .onSnapshot((doc) => {
+          //success
+          if (doc.exists) {
+            const usersDoc = doc.data();
+            setState({
+              friendsFirstName: usersDoc.first_name,
+              friendsLastName: usersDoc.last_name,
+              friendsProfile: usersDoc.profile_url
+            });
+            fetchFriendsPost(friends);
+          } else {
+            //
+          }
+        });
+    };
+    const fetchFriendsPost = (friends) => {
+      db.collection("users")
+        .doc(friends)
+        .collection("post")
+        .orderBy("posted_date", "desc")
+        .onSnapshot((doc) => {
+          let postlist = [];
+          doc.forEach((f) => {
+            postlist.push(f.data());
+          });
+          setFriendsPost(postlist);
+        });
+    };
+    friendsDetails(friends);
   }, []);
   return (
     <div>
@@ -142,6 +178,40 @@ function Home() {
                   </Typography>
                   <Typography variant="body2" color="textPrimary" component="p">
                     {p.caption}
+                  </Typography>
+                </CardContent>
+              </Card>
+            ))}
+            {friendsPost.map((f) => (
+              <Card className={classes.card}>
+                <CardHeader
+                  avatar={<Avatar src={state.friendsProfile} />}
+                  action={
+                    <IconButton aria-label="settings">
+                      <MoreVertIcon />
+                    </IconButton>
+                  }
+                  title={state.friendsFirstName + " " + state.friendsLastName}
+                  subheader={moment(
+                    f.posted_date.toDate().toString()
+                  ).calendar()}
+                />
+                <CardMedia
+                  square
+                  className={classes.media}
+                  image={f.image_url}
+                />
+                <CardActions>
+                  <IconButton>
+                    <FavoriteIcon />
+                  </IconButton>
+                </CardActions>
+                <CardContent>
+                  <Typography variant="body2" color="textPrimary" component="p">
+                    0 likes
+                  </Typography>
+                  <Typography variant="body2" color="textPrimary" component="p">
+                    {f.caption}
                   </Typography>
                 </CardContent>
               </Card>

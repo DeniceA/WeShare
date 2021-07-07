@@ -84,33 +84,7 @@ function ChangeProfile({ open, setOpen, useruid }) {
 
   useEffect(() => {
     const currentuser = firebase.auth().currentUser;
-
     const fetchData = () => {
-      db.collection("users")
-        .doc(currentuser.uid)
-        .get()
-        .then((doc) => {
-          //success
-          if (doc.exists) {
-            let usersDoc = doc.data();
-            setState({
-              firstName: usersDoc.first_name,
-              lastName: usersDoc.last_name,
-              bio: usersDoc.bio,
-              useruid: currentuser.uid,
-              changeFirstName: state.firstName,
-              changeLastName: state.lastName,
-              changeBio: state.bio
-            });
-          } else {
-            //
-          }
-        })
-        .catch((err) => {
-          //error
-        });
-    };
-    const fetchFriendsData = () => {
       db.collection("users")
         .doc(currentuser.uid)
         .get()
@@ -137,15 +111,9 @@ function ChangeProfile({ open, setOpen, useruid }) {
     };
 
     fetchData();
-    fetchFriendsData();
   }, []);
 
   const handleClose = () => {
-    setState({
-      changeFirstName: state.firstName,
-      changeLastName: state.lastName,
-      changeBio: state.bio
-    });
     setOpen(false);
   };
   const confirm = (event) => {
