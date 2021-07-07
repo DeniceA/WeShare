@@ -61,7 +61,7 @@ function ChangeProfile({ open, setOpen, useruid }) {
   const [state, setState] = useState({
     firstName: "",
     lastName: "",
-
+    bio: "",
     useruid: "",
     changeFirstName: "",
     changeLastName: "",
@@ -88,26 +88,64 @@ function ChangeProfile({ open, setOpen, useruid }) {
     const fetchData = () => {
       db.collection("users")
         .doc(currentuser.uid)
-        .onSnapshot((doc) => {
+        .get()
+        .then((doc) => {
           //success
           if (doc.exists) {
             let usersDoc = doc.data();
             setState({
               firstName: usersDoc.first_name,
               lastName: usersDoc.last_name,
+              bio: usersDoc.bio,
               useruid: currentuser.uid,
               changeFirstName: state.firstName,
-              changeLastName: state.lastName
+              changeLastName: state.lastName,
+              changeBio: state.bio
             });
           } else {
             //
           }
+        })
+        .catch((err) => {
+          //error
         });
     };
+    const fetchFriendsData = () => {
+      db.collection("users")
+        .doc(currentuser.uid)
+        .get()
+        .then((doc) => {
+          //success
+          if (doc.exists) {
+            let usersDoc = doc.data();
+            setState({
+              firstName: usersDoc.first_name,
+              lastName: usersDoc.last_name,
+              bio: usersDoc.bio,
+              useruid: currentuser.uid,
+              changeFirstName: state.firstName,
+              changeLastName: state.lastName,
+              changeBio: state.bio
+            });
+          } else {
+            //
+          }
+        })
+        .catch((err) => {
+          //error
+        });
+    };
+
     fetchData();
+    fetchFriendsData();
   }, []);
 
   const handleClose = () => {
+    setState({
+      changeFirstName: state.firstName,
+      changeLastName: state.lastName,
+      changeBio: state.bio
+    });
     setOpen(false);
   };
   const confirm = (event) => {
@@ -118,7 +156,8 @@ function ChangeProfile({ open, setOpen, useruid }) {
     batch.update(EditRef, {
       profile_url: imageURL,
       first_name: state.changeFirstName,
-      last_name: state.changeLastName
+      last_name: state.changeLastName,
+      bio: state.changeBio
     });
 
     batch
@@ -170,7 +209,7 @@ function ChangeProfile({ open, setOpen, useruid }) {
                     multiline
                     rows={4}
                     defaultValue={state.bio}
-                    onChange={handleChange("bio")}
+                    onChange={handleChange("changeBio")}
                     variant="outlined"
                   />
                   <div className={classes.file}>

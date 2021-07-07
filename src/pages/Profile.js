@@ -14,7 +14,7 @@ import {
   CardActionArea
 } from "@material-ui/core";
 //icons
-import ImageOutlined from "@material-ui/icons/ImageOutlined";
+
 const useStyles = makeStyles((theme) => ({
   root: {
     margin: 0,
@@ -99,7 +99,7 @@ function Profile() {
     imageURL: "",
     numberOfFriends: 0,
     numberOfPost: 0,
-    bio: "asdasd"
+    bio: ""
   });
   const [post, setPost] = useState([]);
   useEffect(() => {
@@ -115,6 +115,7 @@ function Profile() {
               firstName: usersDoc.first_name,
               lastName: usersDoc.last_name,
               numberOfFriends: usersDoc.friends_number,
+              bio: usersDoc.bio,
               useruid: currentuser.uid,
               profileURL: usersDoc.profile_url,
               numberOfPost: usersDoc.post_number
@@ -177,7 +178,7 @@ function Profile() {
               </div>
               <div>
                 <Typography variant="body2" color="textSecondary" component="p">
-                  <div>{state.bio + " asdasdasd"}</div>
+                  <div>{state.bio}</div>
                 </Typography>
               </div>
             </CardActionArea>
@@ -191,8 +192,7 @@ function Profile() {
               className={classes.textPost2}
             >
               <div className={classes.icon}>
-                <ImageOutlined />
-                <div>Post</div>
+                <Typography variant="h5">Post</Typography>
               </div>
             </Typography>
 
