@@ -73,7 +73,8 @@ export default function AddPost({ open, setOpen, useruid }) {
       batch.set(postRef, {
         caption: state.caption,
         image_url: imageURL,
-        posted_date: new Date()
+        posted_date: new Date(),
+        likes: 0
       });
       let postNumberRef = db.collection("users").doc(useruid);
       batch.update(postNumberRef, {

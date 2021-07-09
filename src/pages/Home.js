@@ -54,7 +54,7 @@ var useStyles = makeStyles((theme) => ({
 const db = firebase.firestore();
 function Home() {
   const classes = useStyles();
-  const [state, setState] = useState({
+  let [state, setState] = useState({
     useruid: "",
     firstName: "",
     lastName: "",
@@ -62,19 +62,22 @@ function Home() {
     imageURL: "",
     NumberOfFriends: 0,
     //
+    likenumber: "",
+    isLiked: false,
     friendsFirstName: "",
     friendsLastName: "",
     friendsProfile: ""
   });
   const [post, setPost] = useState([]);
-  const [friends, setFriends] = useState();
-  const [friendsPost, setFriendsPost] = useState([]);
+  const [likes, setLikes] = useState([]);
+
   useEffect(() => {
     const fetchData = () => {
       const currentuser = firebase.auth().currentUser;
       db.collection("users")
         .doc(currentuser.uid)
-        .onSnapshot((doc) => {
+        .get()
+        .then((doc) => {
           //success
           if (doc.exists) {
             const usersDoc = doc.data();
@@ -83,9 +86,9 @@ function Home() {
               lastName: usersDoc.last_name,
               NumberOfFriends: usersDoc.friends_number,
               useruid: currentuser.uid,
-              profileURL: usersDoc.profile_url
+              profileURL: usersDoc.profile_url,
+              friends: usersDoc.friends
             });
-            setFriends(usersDoc.Friends[0]);
             fetchPosts(currentuser.uid);
           } else {
             //
@@ -99,56 +102,45 @@ function Home() {
         .orderBy("posted_date", "desc")
         .onSnapshot((doc) => {
           let postlist = [];
+          let likecount = [];
           doc.forEach((p) => {
             postlist.push(p.data());
+            likecount.push(p.id);
           });
           setPost(postlist);
+          setLikes(likecount);
         });
     };
     fetchData();
   }, []);
 
-  useEffect(() => {
-    const friendsDetails = (friends) => {
-      db.collection("users")
-        .doc(friends)
-        .onSnapshot((doc) => {
-          //success
-          if (doc.exists) {
-            const usersDoc = doc.data();
-            setState({
-              friendsFirstName: usersDoc.first_name,
-              friendsLastName: usersDoc.last_name,
-              friendsProfile: usersDoc.profile_url
-            });
-            fetchFriendsPost(friends);
-          } else {
-            //
-          }
-        });
-    };
-    const fetchFriendsPost = (friends) => {
-      db.collection("users")
-        .doc(friends)
-        .collection("post")
-        .orderBy("posted_date", "desc")
-        .onSnapshot((doc) => {
-          let postlist = [];
-          doc.forEach((f) => {
-            postlist.push(f.data());
-          });
-          setFriendsPost(postlist);
-        });
-    };
-    friendsDetails(friends);
-  }, []);
+  const liked = (e) => {
+    const batch = db.batch();
+    let likesRef = db
+      .collection("users")
+      .doc(state.useruid)
+      .collection("post")
+      .doc(likes[e].toString());
+    batch.update(likesRef, {
+      likes: firebase.firestore.FieldValue.increment(1),
+      isAlreadyLiked: true
+    });
+
+    batch
+      .commit()
+      .then(() => {})
+      .catch((error) => {
+        //err
+      });
+  };
+
   return (
     <div>
       <Nav useruid={state.useruid} />
       <div className={classes.root}>
         <Grid container spacing={2} className={classes.container}>
           <Grid item xs={8}>
-            {post.map((p) => (
+            {post.map((p, index) => (
               <Card className={classes.card}>
                 <CardHeader
                   avatar={<Avatar src={state.profileURL} />}
@@ -162,56 +154,18 @@ function Home() {
                     p.posted_date.toDate().toString()
                   ).calendar()}
                 />
-                <CardMedia
-                  square
-                  className={classes.media}
-                  image={p.image_url}
-                />
+                <CardMedia className={classes.media} image={p.image_url} />
                 <CardActions>
-                  <IconButton>
+                  <IconButton key={index} onClick={() => liked(index)}>
                     <FavoriteIcon />
                   </IconButton>
                 </CardActions>
                 <CardContent>
                   <Typography variant="body2" color="textPrimary" component="p">
-                    0 likes
+                    {p.likes} likes
                   </Typography>
                   <Typography variant="body2" color="textPrimary" component="p">
                     {p.caption}
-                  </Typography>
-                </CardContent>
-              </Card>
-            ))}
-            {friendsPost.map((f) => (
-              <Card className={classes.card}>
-                <CardHeader
-                  avatar={<Avatar src={state.friendsProfile} />}
-                  action={
-                    <IconButton aria-label="settings">
-                      <MoreVertIcon />
-                    </IconButton>
-                  }
-                  title={state.friendsFirstName + " " + state.friendsLastName}
-                  subheader={moment(
-                    f.posted_date.toDate().toString()
-                  ).calendar()}
-                />
-                <CardMedia
-                  square
-                  className={classes.media}
-                  image={f.image_url}
-                />
-                <CardActions>
-                  <IconButton>
-                    <FavoriteIcon />
-                  </IconButton>
-                </CardActions>
-                <CardContent>
-                  <Typography variant="body2" color="textPrimary" component="p">
-                    0 likes
-                  </Typography>
-                  <Typography variant="body2" color="textPrimary" component="p">
-                    {f.caption}
                   </Typography>
                 </CardContent>
               </Card>

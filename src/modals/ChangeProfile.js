@@ -67,12 +67,11 @@ function ChangeProfile({ open, setOpen, useruid }) {
     changeLastName: "",
     changeBio: ""
   });
+  const [imageURL, setImageURL] = useState("");
 
   const handleChange = (prop) => (event) => {
     setState({ ...state, [prop]: event.target.value });
   };
-
-  const [imageURL, setImageURL] = useState("");
 
   const onFileChange = async (event) => {
     const file = event.target.files[0];
@@ -82,42 +81,39 @@ function ChangeProfile({ open, setOpen, useruid }) {
     setImageURL(await fileRef.getDownloadURL());
   };
 
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   useEffect(() => {
     const currentuser = firebase.auth().currentUser;
     const fetchData = () => {
       db.collection("users")
         .doc(currentuser.uid)
-        .get()
-        .then((doc) => {
+        .onSnapshot((doc) => {
           //success
           if (doc.exists) {
             let usersDoc = doc.data();
             setState({
               firstName: usersDoc.first_name,
               lastName: usersDoc.last_name,
-              bio: usersDoc.bio,
               useruid: currentuser.uid,
-              changeFirstName: state.firstName,
-              changeLastName: state.lastName,
-              changeBio: state.bio
+              bio: usersDoc.bio,
+              changeFirstName: usersDoc.first_name,
+              changeLastName: usersDoc.last_name,
+              changeBio: usersDoc.bio
             });
+            setImageURL(usersDoc.profile_url);
           } else {
             //
           }
-        })
-        .catch((err) => {
-          //error
         });
     };
-
     fetchData();
   }, []);
 
-  const handleClose = () => {
-    setOpen(false);
-  };
-  const confirm = (event) => {
-    event.preventDefault();
+  const confirm = (e) => {
+    e.preventDefault();
     const batch = db.batch();
 
     let EditRef = db.collection("users").doc(state.useruid);
@@ -131,7 +127,6 @@ function ChangeProfile({ open, setOpen, useruid }) {
     batch
       .commit()
       .then(() => {
-        setImageURL("");
         handleClose();
       })
       .catch((error) => {
