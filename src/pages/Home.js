@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Nav from "../components/Nav";
 import firebase from "../utils/firebase";
-import AddPost from "../modals/AddPost";
+import EditPost from "../modals/EditPost";
+import PopupState, { bindToggle, bindPopper } from "material-ui-popup-state";
 import moment from "moment";
 import {
   Grid,
@@ -13,7 +14,11 @@ import {
   CardActions,
   IconButton,
   CardHeader,
-  Avatar
+  Avatar,
+  Popper,
+  Fade,
+  Button,
+  Paper
 } from "@material-ui/core";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import FavoriteIcon from "@material-ui/icons/Favorite";
@@ -48,11 +53,19 @@ var useStyles = makeStyles((theme) => ({
   card: {
     border: "0.5px solid rgb(215, 40, 126)",
     marginBottom: 20
+  },
+  paper: {
+    padding: theme.spacing(1),
+    backgroundColor: theme.palette.background.paper,
+    display: "flex",
+    flexDirection: "column"
   }
 }));
 
 const db = firebase.firestore();
 function Home() {
+  const [openEditPost, setOpenEditPost] = useState(false);
+  const [postid, setPostid] = useState("asdasd");
   const classes = useStyles();
   let [state, setState] = useState({
     useruid: "",
@@ -63,13 +76,13 @@ function Home() {
     NumberOfFriends: 0,
     //
     likenumber: "",
-    isLiked: false,
+    isLiked: "like",
     friendsFirstName: "",
     friendsLastName: "",
     friendsProfile: ""
   });
   const [post, setPost] = useState([]);
-  const [likes, setLikes] = useState([]);
+  const [userLike, setUserLike] = useState([]);
 
   useEffect(() => {
     const fetchData = () => {
@@ -108,30 +121,56 @@ function Home() {
             likecount.push(p.id);
           });
           setPost(postlist);
-          setLikes(likecount);
+          setUserLike(likecount);
         });
     };
+
     fetchData();
   }, []);
-
+  const onEdit = (e) => {
+    setPostid(userLike[e]);
+    //
+    //
+    setOpenEditPost(true);
+  };
   const liked = (e) => {
     const batch = db.batch();
     let likesRef = db
       .collection("users")
       .doc(state.useruid)
       .collection("post")
-      .doc(likes[e].toString());
+      .doc(userLike[e].toString());
     batch.update(likesRef, {
-      likes: firebase.firestore.FieldValue.increment(1),
-      isAlreadyLiked: true
+      likes: firebase.firestore.FieldValue.increment(1)
     });
-
     batch
       .commit()
       .then(() => {})
       .catch((error) => {
         //err
       });
+  };
+
+  const onDelete = (e) => {
+    var answer = window.confirm("Are you sure ?");
+    if (answer) {
+      const batch = db.batch();
+      let deleteRef = db
+        .collection("users")
+        .doc(state.useruid)
+        .collection("post")
+        .doc(userLike[e].toString());
+      batch.delete(deleteRef, {});
+
+      batch
+        .commit()
+        .then(() => {})
+        .catch((error) => {
+          //err
+        });
+    } else {
+      //some code
+    }
   };
 
   return (
@@ -145,15 +184,38 @@ function Home() {
                 <CardHeader
                   avatar={<Avatar src={state.profileURL} />}
                   action={
-                    <IconButton aria-label="settings">
-                      <MoreVertIcon />
-                    </IconButton>
+                    <PopupState variant="popper" popupId="demo-popup-popper">
+                      {(popupState) => (
+                        <div>
+                          <IconButton {...bindToggle(popupState)}>
+                            <MoreVertIcon />
+                          </IconButton>
+                          <Popper {...bindPopper(popupState)} transition>
+                            {({ TransitionProps }) => (
+                              <Fade {...TransitionProps} timeout={350}>
+                                <Paper>
+                                  <div className={classes.paper}>
+                                    <Button onClick={() => onEdit(index)}>
+                                      edit
+                                    </Button>
+                                    <Button onClick={() => onDelete(index)}>
+                                      delete
+                                    </Button>
+                                  </div>
+                                </Paper>
+                              </Fade>
+                            )}
+                          </Popper>
+                        </div>
+                      )}
+                    </PopupState>
                   }
                   title={state.firstName + " " + state.lastName}
                   subheader={moment(
                     p.posted_date.toDate().toString()
                   ).calendar()}
                 />
+
                 <CardMedia className={classes.media} image={p.image_url} />
                 <CardActions>
                   <IconButton key={index} onClick={() => liked(index)}>
@@ -182,7 +244,12 @@ function Home() {
           </Grid>
         </Grid>
       </div>
-      <AddPost open={false} setOpen={false} userUid={state.useruid} />
+      <EditPost
+        open={openEditPost}
+        setOpen={setOpenEditPost}
+        useruid={state.useruid}
+        postid={postid}
+      />
     </div>
   );
 }
