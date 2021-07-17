@@ -38,7 +38,14 @@ const useStyles = makeStyles((theme) => ({
 }));
 const db = firebase.firestore();
 
-export default function AddPost({ open, setOpen, useruid }) {
+export default function AddPost({
+  open,
+  setOpen,
+  useruid,
+  lastname,
+  firstname,
+  imageurl
+}) {
   const classes = useStyles();
   const [state, setState] = useState({
     caption: " "
@@ -76,6 +83,18 @@ export default function AddPost({ open, setOpen, useruid }) {
         posted_date: new Date(),
         likes: 0
       });
+
+      const publicpostRef = db.collection("public").doc();
+      batch.set(publicpostRef, {
+        caption: state.caption,
+        image_url: imageURL,
+        posted_date: new Date(),
+        likes: 0,
+        last_name: lastname,
+        first_name: firstname,
+        profile: imageurl
+      });
+
       let postNumberRef = db.collection("users").doc(useruid);
       batch.update(postNumberRef, {
         post_number: firebase.firestore.FieldValue.increment(1)

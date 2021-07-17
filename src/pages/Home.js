@@ -36,7 +36,7 @@ var useStyles = makeStyles((theme) => ({
 
   media: {
     height: 0,
-    paddingTop: "100%" // 16:9
+    paddingTop: "80%" // 16:9
   },
   friendsList: {
     height: 400,
@@ -102,16 +102,14 @@ function Home() {
               profileURL: usersDoc.profile_url,
               friends: usersDoc.friends
             });
-            fetchPosts(currentuser.uid);
+            fetchPosts();
           } else {
             //
           }
         });
     };
-    const fetchPosts = (useruid) => {
-      db.collection("users")
-        .doc(useruid)
-        .collection("post")
+    const fetchPosts = () => {
+      db.collection("public")
         .orderBy("posted_date", "desc")
         .onSnapshot((doc) => {
           let postlist = [];
@@ -135,14 +133,20 @@ function Home() {
   };
   const liked = (e) => {
     const batch = db.batch();
+    let likespublicRef = db.collection("public").doc(userLike[e].toString());
+    batch.update(likespublicRef, {
+      likes: firebase.firestore.FieldValue.increment(1)
+    });
     let likesRef = db
       .collection("users")
       .doc(state.useruid)
       .collection("post")
       .doc(userLike[e].toString());
+
     batch.update(likesRef, {
       likes: firebase.firestore.FieldValue.increment(1)
     });
+
     batch
       .commit()
       .then(() => {})
@@ -162,6 +166,9 @@ function Home() {
         .doc(userLike[e].toString());
       batch.delete(deleteRef, {});
 
+      let deletePublicRef = db.collection("public").doc(userLike[e].toString());
+      batch.delete(deletePublicRef, {});
+
       batch
         .commit()
         .then(() => {})
@@ -175,14 +182,19 @@ function Home() {
 
   return (
     <div>
-      <Nav useruid={state.useruid} />
+      <Nav
+        useruid={state.useruid}
+        firstname={state.firstName}
+        lastname={state.lastName}
+        imageurl={state.profileURL}
+      />
       <div className={classes.root}>
         <Grid container spacing={2} className={classes.container}>
           <Grid item xs={8}>
             {post.map((p, index) => (
               <Card className={classes.card}>
                 <CardHeader
-                  avatar={<Avatar src={state.profileURL} />}
+                  avatar={<Avatar src={p.profile} />}
                   action={
                     <PopupState variant="popper" popupId="demo-popup-popper">
                       {(popupState) => (
@@ -210,7 +222,7 @@ function Home() {
                       )}
                     </PopupState>
                   }
-                  title={state.firstName + " " + state.lastName}
+                  title={p.first_name + " " + p.last_name}
                   subheader={moment(
                     p.posted_date.toDate().toString()
                   ).calendar()}

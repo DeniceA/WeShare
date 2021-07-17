@@ -61,24 +61,20 @@ export default function EditPost({ open, setOpen, useruid, postid }) {
   useEffect(() => {
     const currentuser = firebase.auth().currentUser;
     const fetchData = () => {
-      db.collection("users")
-        .doc(currentuser.uid)
-        .collection("post")
-        .doc(postid)
-        .onSnapshot((doc) => {
-          //success
-          if (doc.exists) {
-            let usersDoc = doc.data();
-            setState({
-              caption: usersDoc.caption,
-              changeCaption: usersDoc.caption,
-              imageurl: usersDoc.image_url,
-              useruid: currentuser.uid
-            });
-          } else {
-            //
-          }
-        });
+      db.collection("public").onSnapshot((doc) => {
+        //success
+        if (doc.exists) {
+          let usersDoc = doc.data();
+          setState({
+            caption: usersDoc.caption,
+            changeCaption: usersDoc.caption,
+            imageurl: usersDoc.image_url,
+            useruid: currentuser.uid
+          });
+        } else {
+          //
+        }
+      });
     };
     fetchData();
   }, []);
@@ -86,12 +82,8 @@ export default function EditPost({ open, setOpen, useruid, postid }) {
     e.preventDefault();
     const currentuser = firebase.auth().currentUser;
     const batch = db.batch();
-    let EditRef = db
-      .collection("users")
-      .doc(currentuser.uid)
-      .collection("post")
-      .doc(postid);
-    batch.update(EditRef, {
+    let publiceditRef = db.collection("public").doc(postid);
+    batch.update(publiceditRef, {
       caption: state.changeCaption
     });
 

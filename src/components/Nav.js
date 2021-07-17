@@ -11,7 +11,8 @@ import {
   Divider,
   useScrollTrigger,
   CssBaseline,
-  Typography
+  Typography,
+  Avatar
 } from "@material-ui/core";
 import AddPost from "../modals/AddPost";
 import Home from "@material-ui/icons/HomeOutlined";
@@ -28,6 +29,9 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     background: "red"
+  },
+  logo: {
+    display: "flex"
   }
 }));
 
@@ -68,7 +72,7 @@ ElevationScroll.propTypes = {
   window: PropTypes.func
 };
 
-export default function Nav({ props, useruid }) {
+export default function Nav({ props, useruid, imageurl, firstname, lastname }) {
   const [openAddPost, setOpenAddPost] = useState(false);
   const history = useHistory("");
   const classes = useStyles();
@@ -80,9 +84,12 @@ export default function Nav({ props, useruid }) {
           <Toolbar className={classes.toolbar}>
             <Grid container xs={12}>
               <Grid item xs={5}>
-                <Typography color="Primary" variant="h4">
-                  WeShare
-                </Typography>
+                <div className={classes.logo}>
+                  <Avatar src="https://firebasestorage.googleapis.com/v0/b/weshare-8c94c.appspot.com/o/Untitled%20design%20(1).png?alt=media&token=a4310730-97de-4a21-af2a-86c3d5522782" />
+                  <Typography color="Primary" variant="h4">
+                    WeShare
+                  </Typography>
+                </div>
               </Grid>
               <Grid item xs={3}></Grid>
               <Grid item xs={4}>
@@ -117,7 +124,14 @@ export default function Nav({ props, useruid }) {
         </AppBar>
       </ElevationScroll>
       <Toolbar />
-      <AddPost useruid={useruid} open={openAddPost} setOpen={setOpenAddPost} />
+      <AddPost
+        useruid={useruid}
+        open={openAddPost}
+        setOpen={setOpenAddPost}
+        firstname={firstname}
+        lastname={lastname}
+        imageurl={imageurl}
+      />
     </React.Fragment>
   );
 }
